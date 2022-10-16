@@ -1,7 +1,5 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
-
+import 'question_database.dart';
 import 'Answer.dart';
 
 class Home extends StatefulWidget {
@@ -25,19 +23,24 @@ class _HomeState extends State<Home> {
         _totalScore++;
       }
       // adding to the score tracker on top
-      _scoreTracker.add(answerScore ? Icon(Icons.check_circle,
-      color: Colors.green,
-      ) : Icon(Icons.clear,
-        color: Colors.red,
-      ),
-
-    );
-  });
+      _scoreTracker.add(
+        answerScore
+            ? const Icon(
+                Icons.check_circle,
+                color: Colors.green,
+              )
+            : const Icon(
+                Icons.clear,
+                color: Colors.red,
+              ),
+      );
+    });
 
     // When the quiz ends
-    if (_questionIndex + 1 == _questions.length){
+    if (_questionIndex + 1 == questions.length) {
       endOfQuiz = true;
     }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,24 +56,26 @@ class _HomeState extends State<Home> {
             children: [
               Row(
                 children: [
-                  if (_scoreTracker.length == 0) SizedBox(height: 25.0),
-                  if (_scoreTracker.length > 0) ..._scoreTracker
+                  if (_scoreTracker.isEmpty) const SizedBox(height: 25.0),
+                  if (_scoreTracker.isNotEmpty) ..._scoreTracker
                 ],
               ),
               Container(
                 width: double.infinity,
                 height: 130.0,
-                margin: EdgeInsets.only(bottom: 10.0, left: 30.0, right: 30.0),
-                padding: EdgeInsets.symmetric(horizontal: 50.0, vertical: 20.0),
+                margin: const EdgeInsets.only(
+                    bottom: 10.0, left: 30.0, right: 30.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 50.0, vertical: 20.0),
                 decoration: BoxDecoration(
                   color: Colors.deepPurpleAccent,
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: Center(
                   child: Text(
-                    _questions[_questionIndex]['question'] as String,
+                    questions[_questionIndex]['question'] as String,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20.0,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -78,69 +83,36 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
-              ...(_questions[_questionIndex]['answers']
-                      as List<Map<String, Object>>)
+              ...(questions[_questionIndex]['answers']
+                      as List<Map<String, dynamic>>)
                   .map(
-                (answer) => Answer(
+                (answer) => AnswerCardDisplay(
                   answerText: answer['answerText'],
                   answerColor: answerWasSelected
-                      ? answer['score']
+                      ? answer['isCorrect']
                           ? Colors.green
                           : Colors.red
-                      : null,
-                  answerTap: () {_qustionAnswered(answer['score']);
-                    },
+                      : Colors.grey,
+                  answerTap: () {
+                    _qustionAnswered(answer['isCorrect']);
+                  },
                 ),
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {},
-                child: Text(endOfQuiz? 'Restart Quiz':'Next Question'),
+                child: Text(endOfQuiz ? 'Restart Quiz' : 'Next Question'),
               ),
               Container(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  '${_totalScore.toString()}/${_questions.length},
-                  ,style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
-                  ),
+                  '${_totalScore.toString()}/${questions.length}',
+                  style: const TextStyle(
+                      fontSize: 40.0, fontWeight: FontWeight.bold),
+                ),
               )
             ],
           ),
         ));
   }
 }
-
-List<Map<String, dynamic>> _questions = const [
-  {
-    'question': 'Is Mount Kilimanjaro the world’s tallest peak? ',
-    'answers': [
-      {'answerText': 'Yes is it', 'score': true},
-      {'answerText': 'Ey I dont really know', 'score': false},
-      {'answerText': 'No Mount Everast is the tallest peak', 'score': false},
-    ],
-  },
-  {
-    'question': 'Venezuela is home to the world’s highest waterfall. ',
-    'answers': [
-      {'answerText': 'Yes is it', 'score': true},
-      {'answerText': 'Ey I dont really know', 'score': false},
-      {'answerText': 'No Zimbabwe is', 'score': false},
-    ],
-  },
-  {
-    'question': 'Coffee is a berry-based beverage. ',
-    'answers': [
-      {'answerText': 'Yes is it', 'score': true},
-      {'answerText': 'Ey I dont really know', 'score': false},
-      {'answerText': 'No coffee is coffee', 'score': false},
-    ],
-  },
-];
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
-  }
-}
-
